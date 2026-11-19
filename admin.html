@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — D-Language Studio Karnal</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <header class="bg-[#0F1E36] text-white border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <span class="font-bold text-base">D-Language Studio</span>
+        <span class="text-xs text-amber-300 px-2 py-0.5 rounded bg-white/10">Website Admin</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-xs font-semibold bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-lg">Open Website ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Gate -->
+  <section id="loginGate" class="max-w-md mx-auto mt-16 px-4">
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+      <h1 class="text-xl font-extrabold text-[#0F1E36]">Admin Login</h1>
+      <p class="text-xs text-slate-600">Enter your Admin PIN (default: <strong>1234</strong>) to edit website text &amp; photos.</p>
+      <input id="pinInput" type="password" placeholder="Enter PIN" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+      <button id="loginBtn" type="button" class="w-full bg-[#0F1E36] hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-sm">Unlock Admin Panel</button>
+      <p id="loginErr" class="hidden text-xs text-red-600 font-medium">Incorrect PIN. Try 1234 (or your updated PIN in google_apps_script.gs).</p>
+    </div>
+  </section>
+
+  <!-- Admin Editor -->
+  <main id="adminPanel" class="hidden max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="text-xs text-amber-900">
+        <strong>Google Sheets Connection:</strong>
+        <span id="sheetStatusText">Not connected in config.js yet — changes will save locally in this browser for preview.</span>
+      </div>
+      <button id="resetDefaultsBtn" type="button" class="text-xs font-semibold text-amber-800 underline self-start sm:self-center">Reset to Defaults</button>
+    </div>
+
+    <form id="editorForm" class="space-y-6">
+      <!-- Hero Text -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-[#0F1E36]">1. Hero &amp; Studio Details</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Hero Headline</label>
+            <input id="fHeroTitle" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Hero Highlight Line (Gold)</label>
+            <input id="fHeroHighlight" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Hero Description</label>
+          <textarea id="fHeroDesc" rows="2" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Primary Phone</label>
+            <input id="fPhone1" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Secondary Phone</label>
+            <input id="fPhone2" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+            <input id="fEmail" type="email" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Karnal Branch Address</label>
+          <input id="fAddress" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+      </div>
+
+      <!-- Photos -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-[#0F1E36]">2. Website Photos</h2>
+        <p class="text-xs text-slate-500">Paste any public image URL, or upload a photo file from your device (keep uploaded photos under 300 KB for fast loading).</p>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-700">Hero Classroom Photo</label>
+            <input id="fHeroImg" type="text" placeholder="Image URL (optional)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+            <input type="file" accept="image/*" data-target="fHeroImg" class="img-upload block w-full text-xs text-slate-500" />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-700">Speakers Club Photo</label>
+            <input id="fClubImg" type="text" placeholder="Image URL (optional)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+            <input type="file" accept="image/*" data-target="fClubImg" class="img-upload block w-full text-xs text-slate-500" />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-700">Germany Pathway Photo</label>
+            <input id="fPathImg" type="text" placeholder="Image URL (optional)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+            <input type="file" accept="image/*" data-target="fPathImg" class="img-upload block w-full text-xs text-slate-500" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Fees -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-[#0F1E36]">3. Course Fees (INR)</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">A1 Fee (₹)</label>
+            <input id="feeA1" type="number" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">A2 Fee (₹)</label>
+            <input id="feeA2" type="number" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">B1 Fee (₹)</label>
+            <input id="feeB1" type="number" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">B2 Fee (₹)</label>
+            <input id="feeB2" type="number" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">C1 Fee (₹)</label>
+            <input id="feeC1" type="number" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-[#0F1E36] font-bold px-6 py-3 rounded-xl text-sm shadow-sm">
+          Save &amp; Publish Changes
+        </button>
+        <span id="saveMsg" class="text-sm font-medium text-emerald-700 hidden"></span>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const DEFAULTS = {
+      heroTitle: "Master German in Karnal.",
+      heroHighlight: "Speak Deutsch Confidently.",
+      heroDesc: "Super Intensive A1 to C1 German coaching behind Old Bus Stand, Karnal. Build real fluency through our Speakers Club, German newspapers, and live interactions with native speakers from Germany, Switzerland, and Austria.",
+      phone1: "+91 77009-11313",
+      phone2: "+91 94663-32266",
+      email: "info@germanlanguagestudio.com",
+      address: "SCO-45, Mahila Ashram Complex, Behind Old Bus Stand, Shakti Colony, Karnal - 132001, Haryana",
+      heroImg: "",
+      clubImg: "",
+      pathImg: "",
+      fees: { A1: 25000, A2: 25000, B1: 25000, B2: 35000, C1: 45000 }
+    };
+
+    let currentPin = "1234";
+    const scriptUrl = (window.SITE_CONFIG && window.SITE_CONFIG.APPS_SCRIPT_URL) || "";
+
+    function fillForm(data) {
+      const d = Object.assign({}, DEFAULTS, data || {});
+      const fees = Object.assign({}, DEFAULTS.fees, (data && data.fees) || {});
+      document.getElementById('fHeroTitle').value = d.heroTitle;
+      document.getElementById('fHeroHighlight').value = d.heroHighlight;
+      document.getElementById('fHeroDesc').value = d.heroDesc;
+      document.getElementById('fPhone1').value = d.phone1;
+      document.getElementById('fPhone2').value = d.phone2;
+      document.getElementById('fEmail').value = d.email;
+      document.getElementById('fAddress').value = d.address;
+      document.getElementById('fHeroImg').value = d.heroImg || "";
+      document.getElementById('fClubImg').value = d.clubImg || "";
+      document.getElementById('fPathImg').value = d.pathImg || "";
+      document.getElementById('feeA1').value = fees.A1;
+      document.getElementById('feeA2').value = fees.A2;
+      document.getElementById('feeB1').value = fees.B1;
+      document.getElementById('feeB2').value = fees.B2;
+      document.getElementById('feeC1').value = fees.C1;
+    }
+
+    async function loadContent() {
+      if (scriptUrl) {
+        document.getElementById('sheetStatusText').textContent = "Connected to Google Sheets. Changes publish live to all visitors.";
+        try {
+          const res = await fetch(scriptUrl);
+          const json = await res.json();
+          if (json.ok && json.content) {
+            fillForm(json.content);
+            return;
+          }
+        } catch (e) {}
+      }
+      try {
+        const local = localStorage.getItem('dls_site_content');
+        if (local) {
+          fillForm(JSON.parse(local));
+          return;
+        }
+      } catch (e) {}
+      fillForm(DEFAULTS);
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const val = document.getElementById('pinInput').value.trim();
+      if (!val) return;
+      currentPin = val;
+      if (!scriptUrl && val !== "1234") {
+        document.getElementById('loginErr').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('loginGate').classList.add('hidden');
+      document.getElementById('adminPanel').classList.remove('hidden');
+      loadContent();
+    });
+
+    document.querySelectorAll('.img-upload').forEach(inp => {
+      inp.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.getElementById(inp.dataset.target).value = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+      try { localStorage.removeItem('dls_site_content'); } catch (e) {}
+      fillForm(DEFAULTS);
+      const msg = document.getElementById('saveMsg');
+      msg.textContent = "Reset to default values. Click Save & Publish to apply.";
+      msg.classList.remove('hidden');
+    });
+
+    document.getElementById('editorForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        heroTitle: document.getElementById('fHeroTitle').value.trim(),
+        heroHighlight: document.getElementById('fHeroHighlight').value.trim(),
+        heroDesc: document.getElementById('fHeroDesc').value.trim(),
+        phone1: document.getElementById('fPhone1').value.trim(),
+        phone2: document.getElementById('fPhone2').value.trim(),
+        email: document.getElementById('fEmail').value.trim(),
+        address: document.getElementById('fAddress').value.trim(),
+        heroImg: document.getElementById('fHeroImg').value.trim(),
+        clubImg: document.getElementById('fClubImg').value.trim(),
+        pathImg: document.getElementById('fPathImg').value.trim(),
+        fees: {
+          A1: Number(document.getElementById('feeA1').value) || 25000,
+          A2: Number(document.getElementById('feeA2').value) || 25000,
+          B1: Number(document.getElementById('feeB1').value) || 25000,
+          B2: Number(document.getElementById('feeB2').value) || 35000,
+          C1: Number(document.getElementById('feeC1').value) || 45000
+        }
+      };
+
+      try { localStorage.setItem('dls_site_content', JSON.stringify(payload)); } catch (err) {}
+
+      const msg = document.getElementById('saveMsg');
+      if (scriptUrl) {
+        try {
+          const res = await fetch(scriptUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'save_content', pin: currentPin, content: payload })
+          });
+          const json = await res.json();
+          if (json.ok) {
+            msg.textContent = "Published live to Google Sheets!";
+          } else {
+            msg.textContent = "Error: " + (json.error || "Check Admin PIN");
+          }
+        } catch (err) {
+          msg.textContent = "Saved locally; could not reach Google Sheets.";
+        }
+      } else {
+        msg.textContent = "Saved locally for preview! Connect config.js to publish for all visitors.";
+      }
+      msg.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
